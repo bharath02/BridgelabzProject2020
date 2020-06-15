@@ -1,99 +1,274 @@
 <!DOCTYPE html>
-<html lang="en">
+<html  lang="en" dir="ltr">
 <head>
-    <meta charset="UTF-8">
-    <title>Creating Real-Time Charts with Flask</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.css" rel="stylesheet">
+    <meta charset="utf-8">
+
+    <title>Stock Price Predictor</title>
+
+    <!-- Bootstraps Java Scipts Links -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+
+
+
+    <!-- JQuery links  -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+
+    <!--High CHART LIVE  -->
+    <script src="http://code.highcharts.com/highcharts.js"></script>
+    <script src="http://code.highcharts.com/highcharts-more.js"></script>
+    <script src="http://code.highcharts.com/modules/exporting.js"></script>
+
+    <!--Gauge  -->
+    <script type="text/javascript" src="http://pubnub.github.io/eon/lib/eon.js"></script>
+
+
 </head>
+
 <body>
-<div class="container">
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-body">
-                    <canvas id="canvas"></canvas>
-                </div>
+
+    <div class="jumbotron">
+        <h1 class="text-top">Stock Price Predictor </h1>
+    </div>
+    <br>
+    <br>
+
+    <div class="container-fluid">
+
+        <div class="row">
+
+            <div class=" ">
+                <h1 class="sensor1"> PredictionValue : </h1>
+            </div>
+            <br>
+
+            <div class=" ">
+                <h1 class="sensor2"> ActualValue :</h1>
+            </div>
+            <br>
+
+
+
+        </div>
+    </div>
+
+    <style>
+
+        .jumbotron{
+            widows: 150px;
+            height: 220px;
+            justify-content: top;
+        }
+
+        .row{
+            justify-content: below;
+        }
+
+
+    </style>
+
+    <div class="container-fluid">
+        <!-- Example row of columns -->
+        <div class="row">
+            <div class="container-fluid" id="data-PredictedData">
+
             </div>
         </div>
     </div>
-</div>
-<!--suppress JSUnresolvedLibraryURL -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
-<!--suppress JSUnresolvedLibraryURL -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/js/bootstrap.min.js"></script>
-<!--suppress JSUnresolvedLibraryURL -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js"></script>
-<script>
+<br>
+<br>
+<br>
 
-    $(document).ready(function () {
-        const config = {
-            type: 'line',
-            data: {
-                labels: [],
-                datasets: [{
-                    label: "Random Dataset",
-                    backgroundColor: 'rgb(255, 99, 132)',
-                    borderColor: 'rgb(255, 99, 132)',
-                    data: [],
-                    fill: false,
-                }],
-            },
-            options: {
-                responsive: true,
-                title: {
-                    display: true,
-                    text: 'Creating Real-Time Charts with Flask'
-                },
-                tooltips: {
-                    mode: 'index',
-                    intersect: false,
-                },
-                hover: {
-                    mode: 'nearest',
-                    intersect: true
-                },
-                scales: {
-                    xAxes: [{
-                        display: true,
-                        scaleLabel: {
-                            display: true,
-                            labelString: 'Time'
-                        }
-                    }],
-                    yAxes: [{
-                        display: true,
-                        scaleLabel: {
-                            display: true,
-                            labelString: 'Value'
-                        }
-                    }]
-                }
-            }
-        };
+    <div class="container-fluid">
+        <!-- Example row of columns -->
+        <div class="row">
+            <div class="container-fluid" id="data-ActualData">
 
-        const context = document.getElementById('canvas').getContext('2d');
+            </div>
+        </div>
+    </div>
 
-        const lineChart = new Chart(context, config);
 
-        const source = new EventSource("/data");
+    <script>
+        var chartPredictedData;
+        var chartActualData;
 
-        source.onmessage = function (event) {
-            const data = JSON.parse(event.data);
-            if (config.data.labels.length === 20) {
-                config.data.labels.shift();
-                config.data.datasets[0].data.shift();
-                config.data.datasets[1].data.shift();
-                config.data.datasets[2].data.shift();
-            }
-            config.data.labels.push(data.StockPrice);
-            config.data.labels.push(data.closePrice);
+        function requestData()
+        {
+            // Ajax call to get the Data from Flask
+            var requests = $.get('/data');
 
-            config.data.datasets[0].data.push(data.value);
-            config.data.datasets[1].data.push(data.value);
-            lineChart.update();
+            var tm = requests.done(function (result)
+            {
+                // predicted
+                var seriesPredictedData = chartPredictedData.series[0],
+                    shiftPredictedData = seriesPredictedData.data.length > 20;
+
+                // Actual Data
+                var seriesActualData = chartActualData.series[0],
+                    shiftActualData = seriesPredictedData.data.length > 20;
+
+                // Add the Point
+                // Time PredictedData\
+                var data1 = [];
+
+                data1.push(result[0]);
+                data1.push(result[1]);
+
+
+                // Add the Point
+                // Time Actual Data
+                var data2 = [];
+                data2.push(result[0]);
+                data2.push(result[1]);
+
+
+                chartPredictedData.series[0].addPoint(data1, true, shiftPredictedData);
+                chartActualData.series[0].addPoint(data2, true, shiftActualData);
+                $(".sensor1").text("");
+                $(".sensor1").text("Predicted : " +  data1[1] );
+
+                $(".sensor2").text("");
+                $(".sensor2").text("Actual : " +  data2[1] );
+
+                // call it again after one second
+                setTimeout(requestData, 2000);
+
+            });
         }
-    });
-</script>
+
+        $(document).ready(function()
+        {
+            // --------------Chart 1 ----------------------------
+            chartPredictedData = new Highcharts.Chart({
+                chart:
+                    {
+                    renderTo: 'data-PredictedData',
+                    defaultSeriesType: 'area',
+                    events: {
+                        load: requestData
+                            }
+                    },
+                title:
+                    {
+                    text: 'Google Predict Stock Price'
+                    },
+                xAxis: {
+                    type: 'datetime',
+                    labels:{
+                        format: '{value:%e-%m-%y %H:%M:%S}'
+                            },
+                    tickPixelInterval: 150,
+                    maxZoom: 20 * 1000
+                        },
+                yAxis: {
+                    lineWidth: 1,
+                    minPadding: 0.2,
+                    maxPadding: 0.2,
+                    title: {
+                        text: 'Value',
+                        margin: 20
+                            }
+                         },
+                series: [{
+                    color : '#008000',
+                    lineColor: '#303030',
+                    name: 'Predicted Price',
+                    data: []
+                }]
+            });
+            // --------------Chart 1 Ends - -----------------
+
+            chartActualData = new Highcharts.Chart({
+                chart:
+                    {
+                        renderTo: 'data-ActualData',
+                        defaultSeriesType: 'area',
+                        events: {
+                            load: requestData
+                        }
+                    },
+                title:
+                    {
+                        text: 'Google Actual Stock Price'
+                    },
+                xAxis: {
+                    type: 'datetime',
+                    labels:{
+                        format: '{value:%e-%m-%y %H:%M:%S}'
+                            },
+                    tickPixelInterval: 150,
+                    maxZoom: 20 * 1000
+                },
+                yAxis: {
+                    minPadding: 0.2,
+                    maxPadding: 0.2,
+                    maxZoom: 20,
+                    title: {
+                        text: 'Value',
+                        margin: 20
+                    }
+                },
+                series: [{
+                    color : '#00FF00',
+                    lineColor: '#1d82b8',
+                    name: 'Actual Price',
+                    data: []
+                }]
+            });
+
+
+        });
+    </script>
+
+
+
+<script>
+    class Image{
+
+        constructor(imgUrl, size)
+        {
+            this.imgUrl=imgUrl;
+            this.size=size;
+        }
+
+        backgroundImage()
+        {
+            console.log("inside function ")
+            // Select the Image
+            var img = document.querySelector(".jumbotron");
+
+            // create Css Text
+            var text = "margin:auto;"+
+                "background-image: url("+this.imgUrl+");" +
+                "background-size:cover;"+
+                "opacity:1;"+
+                "background-blend-mode: darken;"+
+                "height: "+ this.size + "vh;";
+
+            img.style.cssText =  text;
+        }
+
+        centerTitle()
+        {
+            /*
+                Center the Title
+             */
+            var t1 = document.querySelector("#title");
+            t1.classList.add("text-yellow");
+            t1.classList.add("text");
+            t1.classList.add("display-2");
+        }
+    }
+    const imgUrl = 'https://blog.acemoneytransfer.com/wp-content/uploads/2019/06/Google-Stock.jpg'
+    const size = "75";
+    var obj = new Image(imgUrl, size);
+    obj.backgroundImage();
+    obj.centerTitle();
+    </script>
 </body>
+
 </html>
