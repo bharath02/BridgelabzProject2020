@@ -31,7 +31,7 @@
 <body>
 
     <div class="jumbotron">
-        <h1 class="text-top">Stock Price Predictor </h1>
+        <h1 class="text-center text-white">Stock Price Predictor </h1>
     </div>
     <br>
     <br>
@@ -40,19 +40,17 @@
 
         <div class="row">
 
-            <div class=" ">
-                <h1 class="sensor1"> PredictionValue : </h1>
+            <div class="col-5 jumbotron p-2 mx-1", style="background-color: coral">
+                <h1 class="sensor1"> Sensor : </h1>
             </div>
             <br>
 
-            <div class=" ">
-                <h1 class="sensor2"> ActualValue :</h1>
+            <div class="col-5 jumbotron p-2 mx-1", style="background-color:deepskyblue">
+                <h1 class="sensor2">Sensor :</h1>
             </div>
             <br>
-
-
-
         </div>
+
     </div>
 
     <style>
@@ -60,15 +58,14 @@
         .jumbotron{
             widows: 150px;
             height: 220px;
-            justify-content: top;
-        }
+            justify-content: center;
 
+        }
         .row{
-            justify-content: below;
+            justify-content: center;
         }
 
-
-    </style>
+   </style>
 
     <div class="container-fluid">
         <!-- Example row of columns -->
@@ -81,20 +78,9 @@
 <br>
 <br>
 <br>
-
-    <div class="container-fluid">
-        <!-- Example row of columns -->
-        <div class="row">
-            <div class="container-fluid" id="data-ActualData">
-
-            </div>
-        </div>
-    </div>
-
-
     <script>
         var chartPredictedData;
-        var chartActualData;
+       // var chartActualData;
 
         function requestData()
         {
@@ -108,8 +94,8 @@
                     shiftPredictedData = seriesPredictedData.data.length > 20;
 
                 // Actual Data
-                var seriesActualData = chartActualData.series[0],
-                    shiftActualData = seriesPredictedData.data.length > 20;
+                var seriesActualData = chartPredictedData.series[1],
+                   shiftActualData = seriesPredictedData.data.length > 20;
 
                 // Add the Point
                 // Time PredictedData\
@@ -119,15 +105,16 @@
                 data1.push(result[1]);
 
 
-                // Add the Point
-                // Time Actual Data
-                var data2 = [];
-                data2.push(result[0]);
-                data2.push(result[1]);
+<!--                     Add the Point-->
+<!--                     Time Actual Data-->
+                    var data2 = [];
+                    data2.push(result[0]);
+                    data2.push(result[2]);
 
 
                 chartPredictedData.series[0].addPoint(data1, true, shiftPredictedData);
-                chartActualData.series[0].addPoint(data2, true, shiftActualData);
+                chartPredictedData.series[1].addPoint(data2, true, shiftPredictedData);
+               // chartActualData.series[0].addPoint(data2, true, shiftActualData);
                 $(".sensor1").text("");
                 $(".sensor1").text("Predicted : " +  data1[1] );
 
@@ -147,14 +134,14 @@
                 chart:
                     {
                     renderTo: 'data-PredictedData',
-                    defaultSeriesType: 'area',
+                    defaultSeriesType: 'line',
                     events: {
                         load: requestData
                             }
                     },
                 title:
                     {
-                    text: 'Google Predict Stock Price'
+                    text: 'Google Stock Price'
                     },
                 xAxis: {
                     type: 'datetime',
@@ -173,58 +160,38 @@
                         margin: 20
                             }
                          },
+                         dataGrouping: {
+                            forced: true,
+                            approximation: 'sum',
+                            },
                 series: [{
-                    color : '#008000',
+                    color : 'orange',
                     lineColor: '#303030',
                     name: 'Predicted Price',
-                    data: []
-                }]
-            });
-            // --------------Chart 1 Ends - -----------------
+                    data: [] },
+                    {
 
-            chartActualData = new Highcharts.Chart({
-                chart:
-                    {
-                        renderTo: 'data-ActualData',
-                        defaultSeriesType: 'area',
-                        events: {
-                            load: requestData
-                        }
-                    },
-                title:
-                    {
-                        text: 'Google Actual Stock Price'
-                    },
-                xAxis: {
-                    type: 'datetime',
-                    labels:{
-                        format: '{value:%e-%m-%y %H:%M:%S}'
-                            },
-                    tickPixelInterval: 150,
-                    maxZoom: 20 * 1000
-                },
-                yAxis: {
-                    minPadding: 0.2,
-                    maxPadding: 0.2,
-                    maxZoom: 20,
-                    title: {
-                        text: 'Value',
-                        margin: 20
-                    }
-                },
-                series: [{
-                    color : '#00FF00',
-                    lineColor: '#1d82b8',
-                    name: 'Actual Price',
-                    data: []
-                }]
-            });
+                        lineColor: '#1d82b8',
+                        name: 'Actual Price',
+                        data: []
+                    }],
+
+            plotOptions: {
+        line: {
+            dataLabels: {
+                enabled: true
+            },
+            enableMouseTracking: false
+        }
+    },
+
+
+        });
+            // --------------Chart 1 Ends - -----------------
 
 
         });
     </script>
-
-
 
 <script>
     class Image{
@@ -259,16 +226,17 @@
              */
             var t1 = document.querySelector("#title");
             t1.classList.add("text-yellow");
-            t1.classList.add("text");
-            t1.classList.add("display-2");
+            t1.classList.add("text-center");
+            t1.classList.add("display-3");
         }
     }
-    const imgUrl = 'https://blog.acemoneytransfer.com/wp-content/uploads/2019/06/Google-Stock.jpg'
-    const size = "75";
+    const imgUrl = 'https://stockprice.com/wp-content/uploads/2019/06/stock-market-news-june.jpg'
+    const size ="50";
     var obj = new Image(imgUrl, size);
     obj.backgroundImage();
     obj.centerTitle();
     </script>
 </body>
+
 
 </html>
