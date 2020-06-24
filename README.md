@@ -522,4 +522,89 @@ Elastic IP in web server 3.7.206.192:8080  (Elastic IP : Port number)
 
 Job Scheduler
 
+Create job schedule to performane operation autometically.
 
+The Stock Price Prediction of streaming data's Graph display on webpage with aws instance, have to schedule 4 jobs.
+
+1. First runnning two servers zookeeper and kafka with time gap of 5 minutes.
+
+2. Running Producer and Visualization code with time gap of 5 minutes.
+
+3. Create crontab for jobs scheduling with 5 minutes.
+
+4. create path files in instance to schedules job.
+
+
+Open Instance in sysytem
+
+* Check "$ crontab -l" for list of running job schedule
+
+* create new jobs then create "crontab -e"
+        
+* It need Minutes(0-60), Hours(1-24), day of month(1-31), month(1-12), Week(0-6) and job ToDo or location of file Schedule to work
+
+		1. Job schedule to zookeeper 
+                   
+                    01 06 * * * cd /home/ubuntu/kafka/nohup bin/zookeeper-server-start.sh config/zookeeper.properties &
+                                   
+                2. Job schedule to kafka
+                     
+                    06 06 * * * cd /home/ubuntu/kafka/bin/kafka-server-start.sh config/server.properties
+
+                3. Job schedule to Producer
+
+                   11 06 * * * cd python3 /home/ubuntu/Bridgelabz2020/Producer.py
+                
+                4. Job schedule to visulazation
+
+                   11 06 * * * cd gunicorn3 --threads=4 /home/ubuntu/Bridgelabz2020/visualization:app
+
+
+                             or
+
+                1. Job schedule to zookeeper 
+                   
+                    01 06 * * * cd /home/ubuntu/BridgelabzProject2020/ && /usr/bin/jobzookeeper.sh > /home/ubuntu/	  	   
+                                  BridgelabzProject2020/logfile1.out 2>&1 &
+
+                2. Job schedule to kafka
+                     
+                    06 06 * * * cd /home/ubuntu/BridgelabzProject2020/ && /usr/bin/jobkafka.sh > /home/ubuntu/	  	   
+                                  BridgelabzProject2020/logfile1.out 2>&1 &
+
+                3. Job schedule to Producer
+
+                   11 06 * * * cd /home/ubuntu/BridgelabzProject2020/ && /usr/bin/jobproducer.sh > /home/ubuntu/	  	   
+                                  BridgelabzProject2020/logfile1.out 2>&1 &
+                
+                4. Job schedule to visulazation
+
+                   11 06 * * * cd /home/ubuntu/BridgelabzProject2020/ && /bin/sh jobgunicorn.sh > /home/ubuntu/BridgelabzProject2020/
+                                  logfile2.out 2>&1 &
+
+
+                       create files for above 4 commands 
+                       
+                  * jobzookeeper.sh
+                              
+                              #!/bin/bash
+			      
+                              $KAFKA_HOME/bin/zookeeper-server-start.sh -daemon config/zookeeper.properties
+
+                  * jobkafka.sh 
+                              
+                             #!/bin/bash
+                             
+                             $KAFKA_HOME/bin/kafka-server-start.sh -daemon config/server.properties
+
+                  * jobproducer.sh
+                          
+                             #!/usr/bin/python3
+                          
+                             python3 4.0_producer.py
+
+                  * jobgunicorn.sh
+                          
+                            #!/bin/sh
+                          
+                            gunicorn3 --threads=4 visulization:app
